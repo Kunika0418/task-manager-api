@@ -71,7 +71,7 @@ The server runs at: `http://localhost:5000`
 
 ## 📬 API Endpoints
 
-### ➕ POST `/api/tasks`
+### ➕ POST `/api/tasks/create`
 
 Create a new task.
 
