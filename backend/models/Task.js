@@ -1,14 +1,11 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const TaskSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
+const taskSchema = new mongoose.Schema({
+  title: { type: String, required: true },
   description: String,
   status: {
     type: String,
-    enum: ['pending', 'in-progress', 'completed'],
+    enum: ['pending', 'in progress', 'completed'],
     default: 'pending',
   },
   dueDate: Date,
@@ -19,4 +16,4 @@ const TaskSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Task', TaskSchema);
+export default mongoose.model('Task', taskSchema);
