@@ -1,122 +1,123 @@
-# 📝 Task Manager API
+# Task Manager API (MERN Backend)
 
-A backend-only Task Manager API built with **Node.js**, **Express**, and **MongoDB**. It supports creating tasks, filtering by status and priority, searching by title, pagination, and sorting.
+A simple backend API for managing tasks with features like search, filter, pagination, and sorting — built using Node.js, Express, and MongoDB.
 
----
-
-## 📁 Folder Structure
+## 📁 Project Structure
 
 ```
-task-manager-api/
-├── backend/
-│   ├── config/
-│   │   └── db.js
-│   ├── controllers/
-│   │   └── taskController.js
-│   ├── models/
-│   │   └── Task.js
-│   ├── routes/
-│   │   └── taskRoutes.js
-│   ├── .env
-│   ├── server.js
-│   └── package.json
+backend/
+├── config/           # MongoDB connection
+├── controllers/      # Route logic
+├── models/           # Mongoose schema
+├── routes/           # Express routes
+├── .env.example      # Environment variables sample
+├── .gitignore        # Git ignore config
+├── package.json
+├── server.js         # App entry point
+└── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🔧 Features
 
-### 1. Clone the repository
+- Create a task
+- Get all tasks
+  - Search by title
+  - Filter by status and priority
+  - Pagination with `page` & `limit`
+  - Sorting by `dueDate` or `priority`
+
+---
+
+## 📦 Installation
 
 ```bash
+# Clone repo
 git clone https://github.com/Kunika0418/task-manager-api.git
-cd task-manager-api/backend
-```
 
-### 2. Install dependencies
+cd task-manager-api
 
-```bash
+# Backend setup
+cd backend
 npm install
 ```
 
-### 3. Configure environment variables
+---
 
-Create a `.env` file in the `backend/` directory and add the following:
+## ⚙️ Environment Setup
+
+Create a `.env` file inside the `backend/` folder:
 
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string_here
+MONGO_URI=your-mongodb-uri-here
 ```
 
-> 🔐 Replace `your_mongodb_connection_string_here` with your actual MongoDB connection string.
-
-### 4. Run the server
-
-```bash
-npm run dev
-```
-
-Server will be live at: `http://localhost:5000`
+Replace `your-mongodb-uri-here` with your MongoDB connection string.
 
 ---
 
-## 📮 API Endpoints
+## 🚀 Run the Server
 
-### ➕ Create Task  
-`POST /api/tasks`  
-**Request Body:**
+```bash
+# Inside backend/
+npm run dev
+```
+
+The server runs at: `http://localhost:5000`
+
+---
+
+## 📬 API Endpoints
+
+### ➕ POST `/api/tasks`
+
+Create a new task.
+
+#### ✅ Sample Request Body
+
 ```json
 {
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread",
+  "title": "Complete project report",
+  "description": "Finish the report and email it",
   "status": "pending",
-  "priority": "medium",
-  "dueDate": "2025-06-01"
+  "dueDate": "2025-06-01",
+  "priority": "high"
 }
 ```
 
 ---
 
-### 📄 Get Tasks with Filters, Pagination, Sorting  
-`GET /api/tasks`
+### 📥 GET `/api/tasks/list`
 
-#### 🔹 Query Parameters (all optional):
-- `search`: search tasks by title  
-  e.g., `search=react`
-- `status`: `pending`, `in-progress`, `completed`  
-  e.g., `status=completed`
-- `priority`: `low`, `medium`, `high`  
-  e.g., `priority=high`
-- `sortBy`: `dueDate`, `priority`  
-  e.g., `sortBy=dueDate`
-- `page`: current page number (default = 1)  
-- `limit`: number of tasks per page (default = 10)
+Retrieve tasks with advanced query features.
 
-#### 🧪 Example Queries:
+#### 🔍 Query Parameters (all optional)
+
+| Parameter  | Type     | Description                         |
+|------------|----------|-------------------------------------|
+| search     | `string` | Search by title (case-insensitive) |
+| status     | `string` | Filter by: pending, in progress, completed |
+| priority   | `string` | Filter by: low, medium, high        |
+| page       | `number` | Page number (default: 1)            |
+| limit      | `number` | Items per page (default: 10)        |
+| sortBy     | `string` | dueDate or priority                 |
+| order      | `string` | asc or desc                         |
+
+#### ✅ Example
+
 ```http
-GET /api/tasks
-GET /api/tasks?search=react
-GET /api/tasks?status=pending
-GET /api/tasks?priority=high
-GET /api/tasks?page=1&limit=2
-GET /api/tasks?search=API&status=completed&priority=high&sortBy=dueDate&page=1&limit=5
+GET /api/tasks/list?search=project&status=pending&priority=high&page=1&limit=5&sortBy=dueDate&order=asc
 ```
 
 ---
 
-## 🧰 Built With
+## ❗ Error Handling
 
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- dotenv
-- nodemon
+- All endpoints are wrapped in `try-catch`.
+- Global error handler is implemented in `server.js`.
 
 ---
 
-## 🙋‍♀️ Author
 
-**Kunika Agarwal**  
-[GitHub Profile](https://github.com/Kunika0418)
-
----
