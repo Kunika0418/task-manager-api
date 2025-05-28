@@ -1,51 +1,105 @@
-const Task = require('../models/Task');
+import Task from '../models/Task.js';
 
-// POST /tasks
-exports.createTask = async (req, res) => {
+// POST /api/tasks
+export const createTask = async (req, res, next) => {
   try {
-    const task = new Task(req.body);
-    await task.save();
-    res.status(201).json(task);
+    // Input validation
+    const { title } = req.body;
+    
+    if (!title || title.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    // Validate enum values if provided
+    if (req.body.status && !['pending', 'in progress', 'completed'].includes(req.body.status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    if (req.body.priority && !['low', 'medium', 'high'].includes(req.body.priority)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    const task = await Task.create(req.body);
+    res.status(201).json({ success: true, task });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    // Handle MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+    next(error);
   }
 };
 
-// GET /tasks?search=&status=&priority=&page=&limit=&sortBy=
-exports.getTasks = async (req, res) => {
-  const { search, status, priority, page = 1, limit = 10, sortBy } = req.query;
-  const query = {};
-
-  if (search) {
-    query.title = { $regex: search, $options: 'i' };
-  }
-
-  if (status) {
-    query.status = status;
-  }
-
-  if (priority) {
-    query.priority = priority;
-  }
-
-  let sort = {};
-  if (sortBy === 'dueDate') sort.dueDate = 1;
-  if (sortBy === 'priority') sort.priority = 1;
-
+// GET /api/tasks/list
+export const getAllTasks = async (req, res, next) => {
   try {
+    const { search, status, priority, page = 1, limit = 10, sortBy, order = 'asc' } = req.query;
+    
+    // Validate query parameters
+    if (status && !['pending', 'in progress', 'completed'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    if (priority && !['low', 'medium', 'high'].includes(priority)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    if (page && (isNaN(page) || page < 1)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    if (limit && (isNaN(limit) || limit < 1 || limit > 100)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid data"
+      });
+    }
+
+    const query = {};
+
+    if (search) query.title = { $regex: search, $options: 'i' };
+    if (status) query.status = status;
+    if (priority) query.priority = priority;
+
+    const sortOptions = {};
+    if (sortBy) sortOptions[sortBy] = order === 'desc' ? -1 : 1;
+
     const tasks = await Task.find(query)
-      .sort(sort)
+      .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
     const total = await Task.countDocuments(query);
 
-    res.json({
-      tasks,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
+    res.status(200).json({
+      success: true,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      tasks
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
